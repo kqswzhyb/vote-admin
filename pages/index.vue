@@ -38,6 +38,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import {readOne} from '@/graphql/user/user.js'
 
 export default Vue.extend({
   data() {
@@ -85,6 +86,20 @@ export default Vue.extend({
       this.$refs.loginForm.validate(async valid => {
         if (valid) {
           this.loading = true
+          console.log(this.$apolloProvider)
+          this.$apolloProvider.defaultClient.query({
+            fetchPolicy: 'network-only',
+            fetchResults: true,
+             headers: {
+
+    'Content-Type': 'application/json'
+
+  },
+            query: readOne,
+            variables: null
+          }).then(res=>{
+            console.log(res)
+          })
           this.$axios.post('/auth/login',{username:'6',qqOpenId:"2222342345234234"}).then(res=>{
             console.log(res)
             this.loading = false
