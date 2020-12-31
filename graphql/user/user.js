@@ -8,3 +8,12 @@ export const readOne = gql`
     }
   }
 `
+
+export const deleteUser = gql`
+  mutation deleteUser($id: ID!) {
+    deleteUser(id: $id) {
+      code
+      message
+    }
+  }
+`

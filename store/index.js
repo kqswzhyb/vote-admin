@@ -1,16 +1,14 @@
 const state = () => ({
-    count: 0
+    token: ''
 })
 
 const getters = {
-    getCount(state) {
-        return state.count
-    }
+    token: state => state.token
 }
 
 const mutations = {
-    setCount(state, data) {
-        state.count = data
+    setToken(state, data) {
+        state.token = data
     }
 }
 

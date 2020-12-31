@@ -1,7 +1,13 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      auto-complete="on"
+      label-position="left"
+    >
       <div class="title-container">
         <h3 class="title">投票管理系统</h3>
       </div>
@@ -31,14 +37,21 @@
         />
       </el-form-item>
 
-      <el-button :loading="loading" :disabled="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+      <el-button
+        :loading="loading"
+        :disabled="loading"
+        type="primary"
+        style="width: 100%; margin-bottom: 30px"
+        @click.native.prevent="handleLogin"
+        >登录</el-button
+      >
     </el-form>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import {readOne} from '@/graphql/user/user.js'
+import { readOne,deleteUser } from '@/graphql/user/user.js'
 
 export default Vue.extend({
   data() {
@@ -58,12 +71,16 @@ export default Vue.extend({
     }
     return {
       loginForm: {
-        username: '6',
-        qqOpenId: '2222342345234234',
+        username: '',
+        qqOpenId: '',
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        qqOpenId: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        username: [
+          { required: true, trigger: 'blur', validator: validateUsername },
+        ],
+        qqOpenId: [
+          { required: true, trigger: 'blur', validator: validatePassword },
+        ],
       },
       loading: false,
       passwordType: 'password',
@@ -75,45 +92,42 @@ export default Vue.extend({
       handler(route) {
         this.redirect = route.query && route.query.redirect
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
-  fetch() {
-    console.log(111)
+  mounted(){
+    console.log(this.$store)
+    this.$query(readOne,{id:'2'}).then(res=>{
+      console.log(res)
+    })
   },
   methods: {
     async handleLogin() {
-      this.$refs.loginForm.validate(async valid => {
+      this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true
-          console.log(this.$apolloProvider)
-          this.$apolloProvider.defaultClient.query({
-            fetchPolicy: 'network-only',
-            fetchResults: true,
-             headers: {
-
-    'Content-Type': 'application/json'
-
-  },
-            query: readOne,
-            variables: null
-          }).then(res=>{
-            console.log(res)
-          })
-          this.$axios.post('/auth/login',{username:'6',qqOpenId:"2222342345234234"}).then(res=>{
-            console.log(res)
-            this.loading = false
-          })
+          this.$axios
+            .post('/auth/login', this.loginForm)
+            .then((res) => {
+              if(res.data.code==="0"){
+                localStorage.setItem('token',res.data.data)
+                this.$store.commit('setToken',res.data.data)
+                this.$message.success('登录成功')
+              }else {
+                this.$message.error(res.data.message)
+              }
+              this.loading = false
+            })
         }
       })
-    }
-  }
+    },
+  },
 })
 </script>
 
 <style lang="scss">
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
   .login-container .el-input input {
@@ -151,9 +165,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 .login-container {
   min-height: 100%;
   width: 100%;

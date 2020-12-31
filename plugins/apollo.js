@@ -10,7 +10,7 @@ import fetch from 'node-fetch'
 
 const httpLink = createHttpLink({
   // 你需要在这里使用绝对路径
-  uri: 'https://localhost:7001/api/graphql?',
+  uri: 'http://localhost:7001/api/graphql',
   fetch,
 })
 
@@ -75,7 +75,7 @@ const apolloClient = new ApolloClient({
 })
 
 // Generate global ApolloClient
-// global.ApolloClient = apolloClient
+globalThis.ApolloClient = apolloClient
 
 const apolloProvider = new VueApollo({
   defaultClient: apolloClient,
@@ -85,7 +85,24 @@ const apolloProvider = new VueApollo({
     }
   }
 })
-
+Vue.prototype.$query= (query,variables=null)=>{
+  return apolloProvider.defaultClient
+  .query({
+    fetchPolicy: 'network-only',
+    fetchResults: true,
+    query,
+    variables,
+  })
+}
+Vue.prototype.$mutate= (mutation,variables=null)=>{
+  return apolloProvider.defaultClient
+  .mutate({
+    fetchPolicy: 'no-cache',
+    fetchResults: true,
+    mutation,
+    variables,
+  })
+}
 // Assign apollo client to Vue
 Vue.prototype.$apolloProvider = apolloProvider
 
