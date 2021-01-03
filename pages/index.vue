@@ -113,6 +113,7 @@ export default Vue.extend({
                 localStorage.setItem('token',res.data.data)
                 this.$store.commit('setToken',res.data.data)
                 this.$message.success('登录成功')
+                this.$router.push('/admin/')
               }else {
                 this.$message.error(res.data.message)
               }

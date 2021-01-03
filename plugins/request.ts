@@ -1,6 +1,6 @@
 import { Message } from 'element-ui'
 
-export default function ({ $axios, redirect }) {
+export default function ({ $axios, redirect, store }) {
   $axios.defaults.baseURL = 'http://localhost:7001/api';
 
   $axios.interceptors.request.use(
@@ -31,6 +31,7 @@ export default function ({ $axios, redirect }) {
       //Do something with response error
       if (err?.response?.status === 401) {
         localStorage.removeItem('token')
+        store.commit('setToken','')
         Message.error('登录状态已过期失效')
         redirect('/')
       }

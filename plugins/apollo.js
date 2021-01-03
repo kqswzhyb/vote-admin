@@ -75,7 +75,7 @@ const apolloClient = new ApolloClient({
 })
 
 // Generate global ApolloClient
-globalThis.ApolloClient = apolloClient
+// globalThis.ApolloClient = apolloClient
 
 const apolloProvider = new VueApollo({
   defaultClient: apolloClient,

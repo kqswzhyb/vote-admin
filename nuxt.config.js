@@ -14,7 +14,7 @@ export default {
   css: ['element-ui/lib/theme-chalk/index.css','@/assets/css/main.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: ['@/plugins/element-ui','@/plugins/request.ts','@/plugins/apollo.js'],
+  plugins: [{src:'@/plugins/element-ui',ssr:true},{src:'@/plugins/request.ts',ssr:false},{src:'@/plugins/apollo.js',ssr:false},{src:'@/plugins/router.js',ssr:true}],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
