@@ -49,11 +49,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import { readOne,deleteUser } from '@/graphql/user/user.js'
-
-export default Vue.extend({
+<script>
+export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!value) {
@@ -95,35 +92,29 @@ export default Vue.extend({
       immediate: true,
     },
   },
-  mounted(){
-    console.log(this.$store)
-    this.$query(readOne,{id:'2'}).then(res=>{
-      console.log(res)
-    })
-  },
   methods: {
     async handleLogin() {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true
-          this.$axios
-            .post('/auth/login', this.loginForm)
-            .then((res) => {
-              if(res.data.code==="0"){
-                localStorage.setItem('token',res.data.data)
-                this.$store.commit('setToken',res.data.data)
-                this.$message.success('登录成功')
-                this.$router.push('/admin/')
-              }else {
-                this.$message.error(res.data.message)
-              }
-              this.loading = false
-            })
+          this.$axios.post('/auth/login', this.loginForm).then((res) => {
+            if (res.data.code === '0') {
+              this.$cookies.set('token', res.data.data, {
+                maxAge: 60 * 60,
+              })
+              this.$store.commit('setToken', res.data.data)
+              this.$message.success('登录成功')
+              this.$router.push('/admin')
+            } else {
+              this.$message.error(res.data.message)
+            }
+            this.loading = false
+          })
         }
       })
     },
   },
-})
+}
 </script>
 
 <style lang="scss">

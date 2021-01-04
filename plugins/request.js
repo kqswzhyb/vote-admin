@@ -1,11 +1,11 @@
 import { Message } from 'element-ui'
 
-export default function ({ $axios, redirect, store }) {
-  $axios.defaults.baseURL = 'http://localhost:7001/api';
+export default function ({ $axios, redirect, store, app }) {
+  $axios.defaults.baseURL = 'http://localhost:7001/api'
 
   $axios.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem('token')
+      const token = app.$cookies.get('token')
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`
       }
@@ -29,9 +29,8 @@ export default function ({ $axios, redirect, store }) {
     },
     (err) => {
       //Do something with response error
-      if (err?.response?.status === 401) {
-        localStorage.removeItem('token')
-        store.commit('setToken','')
+      if (err.response && err.response.status && err.response.status === 401) {
+        store.commit('setToken', '')
         Message.error('登录状态已过期失效')
         redirect('/')
       }

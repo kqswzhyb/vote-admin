@@ -1,11 +1,11 @@
 <template>
   <el-container style="min-height: 100vh">
-    <Aside />
+    <Aside/>
     <el-container>
-      <Header />
+      <Header/>
       <el-main class="main">
         <transition name="fade-transform" mode="out-in">
-          <Nuxt />
+          <Nuxt/>
         </transition>
       </el-main>
     </el-container>

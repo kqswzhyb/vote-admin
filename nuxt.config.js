@@ -11,10 +11,15 @@ export default {
   },
 
   // Global CSS (https://go.nuxtjs.dev/config-css)
-  css: ['element-ui/lib/theme-chalk/index.css','@/assets/css/main.scss'],
+  css: ['element-ui/lib/theme-chalk/index.css', '@/assets/css/main.scss'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [{src:'@/plugins/element-ui',ssr:true},{src:'@/plugins/request.ts',ssr:false},{src:'@/plugins/apollo.js',ssr:false},{src:'@/plugins/router.js',ssr:true}],
+  plugins: [
+    { src: '@/plugins/element-ui', ssr: true },
+    { src: '@/plugins/request.js', ssr: false },
+    { src: '@/plugins/apollo.js', ssr: false },
+    { src: '@/plugins/router.js', ssr: true },
+  ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -29,6 +34,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    'cookie-universal-nuxt',
   ],
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)

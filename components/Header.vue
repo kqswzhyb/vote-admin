@@ -37,7 +37,7 @@ export default {
       if (command === 'logout') {
         this.$axios.get('/auth/logout').then((res) => {
           if (res.data.code === '0') {
-            localStorage.removeItem('token')
+            this.$cookies.remove('token')
             this.$store.commit('setToken', '')
             this.$message.success('退出成功')
             this.$router.push('/')

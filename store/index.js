@@ -1,4 +1,6 @@
 import createLogger from '@/plugins/logger'
+import { Message } from 'element-ui'
+
 const state = () => ({
   token: '',
   menu: 'show',
@@ -26,6 +28,12 @@ const mutations = {
 }
 
 const actions = {
+  nuxtServerInit({ commit }, { req, res, app }) {
+    const token = app.$cookies.get('token')
+    if (token) {
+      commit('setToken', token)
+    }
+  },
   getUserInfo({ commit, state }, axios) {
     return new Promise((resolve) => {
       axios.get('/user/info').then((res) => {
@@ -33,12 +41,16 @@ const actions = {
           commit('setInfo', res.data.data)
           resolve(res.data.data)
         } else {
-          this.$message.error(res.data.message)
+          Message.error(res.data.message)
+          commit('setToken', '')
         }
       })
     })
   },
 }
 
-let plugins = process.env.NODE_ENV !== 'production' ? [createLogger()] : []
+let plugins =
+  process.env.NODE_ENV !== 'production' && process.client
+    ? [createLogger()]
+    : []
 export { state, getters, mutations, actions, plugins }

@@ -16,14 +16,12 @@ const httpLink = createHttpLink({
 
 Vue.use(VueApollo)
 
-// Cookies key which save login information
-const AUTH_TOKEN = 'token'
-
+export default function ({ app}) {
 // =======
 // Apollo Client
 // =======
 const authMiddleware = new ApolloLink((operation, forward) => {
-  const token = window.localStorage.getItem(AUTH_TOKEN)
+  const token = app.$cookies.get('token')
 
   operation.setContext({
     headers: {
@@ -105,4 +103,8 @@ Vue.prototype.$mutate= (mutation,variables=null)=>{
 }
 // Assign apollo client to Vue
 Vue.prototype.$apolloProvider = apolloProvider
+}
+
+
+
 
