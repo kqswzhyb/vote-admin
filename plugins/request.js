@@ -30,9 +30,10 @@ export default function ({ $axios, redirect, store, app }) {
     (err) => {
       //Do something with response error
       if (err.response && err.response.status && err.response.status === 401) {
+        app.$cookies.remove('token')
         store.commit('setToken', '')
         Message.error('登录状态已过期失效')
-        redirect('/')
+        redirect('/login')
       }
       return Promise.reject(err)
     }

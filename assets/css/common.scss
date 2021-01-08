@@ -31,3 +31,9 @@ $length:100;
 
   .fs#{$i} { font-size: 1px * $i; }
 }
+
+.page-view {
+    width: 100%;
+    text-align: right;
+    margin-top: 15px;
+}

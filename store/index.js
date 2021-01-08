@@ -1,30 +1,24 @@
 import createLogger from '@/plugins/logger'
 import { Message } from 'element-ui'
+import { handleMenu, generateGetters, generateMutations } from '@/utils/util'
 
-const state = () => ({
+const state = ()=>({
   token: '',
   menu: 'show',
   info: {
     nickname: '',
   },
+  menus: [],
+  permissions: [],
+  allMenus: [],
 })
 
 const getters = {
-  token: (state) => state.token,
-  menu: (state) => state.menu,
-  info: (state) => state.info,
+  ...generateGetters(state()),
 }
 
 const mutations = {
-  setToken(state, data) {
-    state.token = data
-  },
-  setMenu(state, data) {
-    state.menu = data
-  },
-  setInfo(state, data) {
-    state.info = data
-  },
+  ...generateMutations(state()),
 }
 
 const actions = {
@@ -38,6 +32,15 @@ const actions = {
     return new Promise((resolve) => {
       axios.get('/user/info').then((res) => {
         if (res.data.code === '0') {
+          const data = res.data.data.role.roleMenu
+            .filter((v) => v.menu && v.menu.id !== '1')
+            .map((v) => v.menu)
+          const permissions = data.filter((v) => v.type === '1')
+          const menus = data.filter((v) => v.parentId === '1')
+          commit('setPermissions', permissions)
+          commit('setMenus', handleMenu(menus, data))
+          commit('setAllMenus', data)
+          delete res.data.data.role.roleMenu
           commit('setInfo', res.data.data)
           resolve(res.data.data)
         } else {

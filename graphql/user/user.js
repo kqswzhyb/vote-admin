@@ -5,6 +5,35 @@ export const readOne = gql`
     user(id: $id) {
       id
       username
+      createdAt
+    }
+  }
+`
+
+export const readAll = gql`
+  query readAll($page: PageInput!, $filter: UserFilter) {
+    userList(page: $page, filter: $filter) {
+      id
+      username
+      nickname
+      qqLevel
+      qqVip
+      lastLoginTime
+      lastVoteTime
+      role {
+        id
+        name
+      }
+      updatedAt
+      createdAt
+    }
+  }
+`
+
+export const readCount = gql`
+  query readCount($filter: UserFilter) {
+    userCount(filter: $filter) {
+      total
     }
   }
 `

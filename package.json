@@ -27,6 +27,8 @@
     "vue-apollo": "^3.0.5"
   },
   "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
     "@nuxt/types": "^2.14.6",
     "@nuxt/typescript-build": "^2.0.3",
     "@nuxtjs/eslint-config": "^3.1.0",
@@ -38,6 +40,7 @@
     "eslint-plugin-nuxt": "^1.0.0",
     "eslint-plugin-prettier": "^3.1.4",
     "fibers": "^5.0.0",
+    "husky": "^4.3.6",
     "prettier": "^2.1.2",
     "sass": "^1.32.0",
     "sass-loader": "^10.1.0"
@@ -50,7 +53,7 @@
   "license": "MIT",
   "husky": {
     "hooks": {
-      "commit-msg": "validate-commit-msg"
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   }
 }

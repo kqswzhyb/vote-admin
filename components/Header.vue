@@ -40,7 +40,7 @@ export default {
             this.$cookies.remove('token')
             this.$store.commit('setToken', '')
             this.$message.success('退出成功')
-            this.$router.push('/')
+            this.$router.push('/login')
           } else {
             this.$message.error(res.data.message)
           }
