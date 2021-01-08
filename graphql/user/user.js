@@ -12,7 +12,7 @@ export const readOne = gql`
 
 export const readAll = gql`
   query readAll($page: PageInput!, $filter: UserFilter) {
-    userList(page: $page, filter: $filter) {
+    data: userList(page: $page, filter: $filter) {
       id
       username
       nickname
@@ -24,16 +24,75 @@ export const readAll = gql`
         id
         name
       }
+      file {
+        id
+        recordId
+        fileExt
+        fileName
+        filePath
+        fileFullPath
+      }
       updatedAt
       createdAt
+      remark
     }
   }
 `
 
 export const readCount = gql`
   query readCount($filter: UserFilter) {
-    userCount(filter: $filter) {
+    page: userCount(filter: $filter) {
       total
+    }
+  }
+`
+
+export const createUser = gql`
+  mutation createUser($input: CreateUserInput!) {
+    createUser(input: $input) {
+      id
+      username
+      nickname
+      qqLevel
+      qqVip
+      lastLoginTime
+      lastVoteTime
+      role {
+        id
+        name
+      }
+      file {
+        id
+        fileFullPath
+      }
+      updatedAt
+      createdAt
+      remark
+    }
+  }
+`
+
+export const updateUser = gql`
+  mutation updateUser($input: UpdateUserInput!, $id: ID!) {
+    updateUser(input: $input, id: $id) {
+      id
+      username
+      nickname
+      qqLevel
+      qqVip
+      lastLoginTime
+      lastVoteTime
+      role {
+        id
+        name
+      }
+      file {
+        id
+        fileFullPath
+      }
+      updatedAt
+      createdAt
+      remark
     }
   }
 `

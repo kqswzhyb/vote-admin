@@ -9,7 +9,15 @@
       @click="changeMenu"
     ></i>
     <el-dropdown @command="handleCommand">
-      <span class="cursor-p">{{ info.nickname }}</span>
+      <div class="flex-center cursor-p">
+        <img
+          :src="info.file ? imgUrl + info.file.fileFullPath : ''"
+          width="20"
+          height="20"
+          alt=""
+        />
+        <span class="ml5">{{ info.nickname }}</span>
+      </div>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="password">修改密码</el-dropdown-item>
         <el-dropdown-item command="logout">退出登录</el-dropdown-item>

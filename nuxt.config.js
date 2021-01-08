@@ -19,6 +19,7 @@ export default {
     { src: '@/plugins/request.js', ssr: false },
     { src: '@/plugins/apollo.js', ssr: false },
     { src: '@/plugins/router.js', ssr: true },
+    { src: '@/plugins/directives.js', ssr: false },
   ],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)

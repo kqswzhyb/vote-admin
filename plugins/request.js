@@ -1,7 +1,12 @@
 import { Message } from 'element-ui'
+import Vue from 'vue'
 
 export default function ({ $axios, redirect, store, app }) {
-  $axios.defaults.baseURL = 'http://localhost:7001/api'
+  const baseURL='http://localhost:7001/api'
+  const imgUrl = 'https://kurumi-1258026269.cos.ap-shanghai.myqcloud.com/'
+  Vue.prototype.$baseURL= baseURL
+  Vue.prototype.imgUrl= imgUrl
+  $axios.defaults.baseURL = baseURL
 
   $axios.interceptors.request.use(
     (config) => {
