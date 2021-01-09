@@ -11,6 +11,7 @@ const state = ()=>({
   menus: [],
   permissions: [],
   allMenus: [],
+  dicList:[]
 })
 
 const getters = {

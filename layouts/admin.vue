@@ -1,11 +1,11 @@
 <template>
   <el-container style="min-height: 100vh">
-    <Aside/>
+    <Aside />
     <el-container>
-      <Header/>
+      <Header />
       <el-main class="main">
         <transition name="fade-transform" mode="out-in">
-          <Nuxt/>
+          <Nuxt />
         </transition>
       </el-main>
     </el-container>
@@ -13,8 +13,15 @@
 </template>
 
 <script>
+import { readAll } from '@/graphql/dic/dic'
 export default {
-  created() {},
+  beforeMount() {
+    this.$query(readAll, { page: { limit: 9999 } }).then((res) => {
+      if (!res.errors) {
+        this.$store.commit('setDicList', res.data.data)
+      }
+    })
+  },
 }
 </script>
 <style>

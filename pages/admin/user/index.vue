@@ -66,12 +66,12 @@
       >
     </div>
     <el-table :data="tableData" stripe border v-loading="loading">
-      <el-table-column prop="index" label="序号" align="center">
+      <el-table-column prop="index" label="序号" align="center" width="50">
         <template slot-scope="scope">
           {{ count + scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column prop="avatar" label="头像" align="center">
+      <el-table-column prop="avatar" label="头像" align="center" width="65">
         <template slot-scope="{ row }">
           <img
             :src="row.file ? imgUrl + row.file.fileFullPath : ''"
@@ -87,7 +87,7 @@
       </el-table-column>
       <el-table-column prop="role" label="角色" align="center">
         <template slot-scope="{ row }">
-          {{ row.role.name }}
+          {{ row.role && row.role.name }}
         </template>
       </el-table-column>
       <el-table-column prop="lastLoginTime" label="最后登录时间" align="center">
@@ -98,7 +98,7 @@
       </el-table-column>
       <el-table-column prop="updatedAt" label="更新时间" align="center">
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="100">
+      <el-table-column fixed="right" label="操作" align="center" width="60">
         <template slot-scope="{ row }">
           <el-button type="text" size="small" @click="editUser(row)"
             >编辑</el-button
