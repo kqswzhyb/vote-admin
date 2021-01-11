@@ -12,6 +12,8 @@ export const readAll = gql`
       ruleContent
       hasReward
       rewardContent
+      createBy
+      status
       voteConfig {
         id
         showMap

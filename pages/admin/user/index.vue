@@ -163,7 +163,7 @@
             }"
             :show-file-list="false"
             :limit="1"
-            :file-list="searchForm.fileList"
+            :file-list="form.fileList"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
           >
@@ -280,10 +280,14 @@ export default {
       this.title = '创建用户'
       this.current = ''
       this.imageUrl = ''
+      this.form = {
+        username: '',
+        nickname: '',
+        fileList: [],
+        roleId: '',
+        remark: '',
+      }
       this.dialogVisible = true
-      this.$nextTick(() => {
-        this.$refs.form.resetFields()
-      })
     },
     openDialog() {
       if (!this.roleList.length) {
@@ -327,7 +331,13 @@ export default {
           } else {
             let params = {
               nickname: this.form.nickname,
-              fileList: this.form.fileList,
+              fileList: this.form.fileList.map((v) => ({
+                recordId: v.recordId,
+                fileExt: v.fileExt,
+                fileFullPath: v.fileFullPath,
+                fileName: v.fileName,
+                filePath: v.filePath,
+              })),
               roleId: this.form.roleId,
               remark: this.form.remark,
             }
@@ -376,32 +386,36 @@ export default {
     },
     getList() {
       this.loading = true
+      let filter = {
+        username: JSON.stringify({
+          cond: 'like',
+          value: this.searchForm.username,
+        }),
+        nickname: JSON.stringify({
+          cond: 'like',
+          value: this.searchForm.nickname,
+        }),
+        createdAt: JSON.stringify({
+          cond: 'rangeTime',
+          value: this.searchForm.createdAt,
+        }),
+        lastLoginTime: JSON.stringify({
+          cond: 'rangeTime',
+          value: this.searchForm.lastLoginTime,
+        }),
+      }
+
       Promise.all([
         this.$query(readAll, {
           page: {
             limit: this.page.size,
             offset: this.count,
           },
-          filter: {
-            username: JSON.stringify({
-              cond: 'like',
-              value: this.searchForm.username,
-            }),
-            nickname: JSON.stringify({
-              cond: 'like',
-              value: this.searchForm.nickname,
-            }),
-            createdAt: JSON.stringify({
-              cond: 'rangeTime',
-              value: this.searchForm.createdAt,
-            }),
-            lastLoginTime: JSON.stringify({
-              cond: 'rangeTime',
-              value: this.searchForm.lastLoginTime,
-            }),
-          },
+          filter,
         }),
-        this.$query(readCount),
+        this.$query(readCount, {
+          filter,
+        }),
       ])
         .then((res) => {
           if (!res[0].errors && !res[1].errors) {

@@ -73,3 +73,38 @@
 .el-drawer__open .el-drawer.rtl {
   width:230px !important;
 }
+
+.leftDialog>.el-dialog {
+	right: 0 !important;
+	float: right !important;
+	margin: 0 !important;
+	height: 100% !important;
+	border-radius: 0 !important
+}
+
+.leftDialog>.el-dialog>.el-dialog__header>.el-dialog__headerbtn {
+	display: none
+}
+
+.leftDialog>.el-dialog>.el-dialog__body {
+	padding-top: 0
+}
+
+.leftDialog>.el-dialog>.el-dialog__body {
+	overflow-y: auto;
+	max-height: 90%
+}
+
+.leftDialog>.el-dialog>.el-dialog__body>.app-container>.basic-container {
+	padding: 0
+}
+
+.leftDialog>.el-dialog>.el-dialog__body>.app-container>.basic-container>.el-card>.el-card__body {
+	padding: 0
+}
+
+.leftDialog .operation {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}

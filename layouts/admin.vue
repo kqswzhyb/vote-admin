@@ -13,12 +13,16 @@
 </template>
 
 <script>
-import { readAll } from '@/graphql/dic/dic'
+import { readAll } from '@/graphql/dic/dicType'
 export default {
   beforeMount() {
     this.$query(readAll, { page: { limit: 9999 } }).then((res) => {
       if (!res.errors) {
-        this.$store.commit('setDicList', res.data.data)
+        let dic={}
+        res.data.data.forEach(v=>{
+          dic[v.code]=v.dic
+        })
+        this.$store.commit('setDicList', dic)
       }
     })
   },
