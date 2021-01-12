@@ -1,10 +1,39 @@
 <template>
   <div>
     <div class="operation">
-      <el-button size="mini" type="primary" @click="submitForm('0')"
+      <el-button
+        size="mini"
+        type="primary"
+        v-if="mode === 'add'"
+        @click="submitForm('0')"
         >创建比赛</el-button
       >
-      <el-button size="mini" type="primary" @click="submitForm('3')"
+      <el-button
+        size="mini"
+        type="primary"
+        v-if="mode === 'change'"
+        @click="createVote"
+        >创建比赛</el-button
+      >
+      <el-button
+        size="mini"
+        type="primary"
+        v-if="mode === 'edit'"
+        @click="updateForm"
+        >更新比赛</el-button
+      >
+      <el-button
+        size="mini"
+        type="primary"
+        v-if="mode === 'add'"
+        @click="submitForm('3')"
+        >保存草稿</el-button
+      >
+      <el-button
+        size="mini"
+        type="primary"
+        v-if="mode === 'change'"
+        @click="updateForm"
         >保存草稿</el-button
       >
       <el-button size="mini" type="danger" @click="goBack">关闭</el-button>
@@ -28,6 +57,7 @@
               >
                 <el-input
                   v-model="form.voteName"
+                  :disabled="mode === 'edit'"
                   size="small"
                   style="width: 100%"
                   placeholder="比赛名称"
@@ -43,6 +73,7 @@
               >
                 <el-select
                   v-model="form.voteType"
+                  :disabled="mode === 'edit'"
                   size="small"
                   style="width: 100%"
                   placeholder="请选择"
@@ -69,7 +100,7 @@
                   style="width: 100%"
                   placeholder="请输入内容"
                   v-model="form.ruleContent"
-                  maxlength="10"
+                  maxlength="500"
                   show-word-limit
                 >
                 </el-input>
@@ -81,7 +112,10 @@
                 prop="hasReward"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.hasReward">
+                <el-radio-group
+                  v-model="form.hasReward"
+                  :disabled="mode === 'edit'"
+                >
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -99,7 +133,7 @@
                   style="width: 100%"
                   placeholder="请输入内容"
                   v-model="form.rewardContent"
-                  maxlength="10"
+                  maxlength="500"
                   show-word-limit
                 >
                 </el-input>
@@ -113,6 +147,7 @@
               >
                 <el-date-picker
                   v-model="form.startTime"
+                  :disabled="mode === 'edit'"
                   size="small"
                   type="datetime"
                   style="width: 100%"
@@ -125,6 +160,7 @@
               <el-form-item label="结束时间" prop="endTime" style="width: 100%">
                 <el-date-picker
                   v-model="form.endTime"
+                  :disabled="mode === 'edit'"
                   size="small"
                   type="datetime"
                   style="width: 100%"
@@ -139,7 +175,10 @@
                 prop="hasSpecialVote"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.hasSpecialVote">
+                <el-radio-group
+                  v-model="form.hasSpecialVote"
+                  :disabled="mode === 'edit'"
+                >
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -322,8 +361,19 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { createVote, readOne, updateVote } from '@/graphql/vote/vote'
 export default {
   name: 'VoteConfigDialog',
+  props: {
+    mode: {
+      type: String,
+      default: 'add',
+    },
+    inData: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
   data() {
     return {
       url: '',
@@ -345,16 +395,6 @@ export default {
         voteLevel: 0,
         diyBg: '',
         remark: '',
-      },
-      submitForm(status) {
-        this.$refs.form.validate((valid) => {
-          if (valid) {
-            if (!this.categoryList.length) {
-              this.$message.error('分类不能为空')
-              return
-            }
-          }
-        })
       },
       rules: {
         voteName: [
@@ -406,6 +446,106 @@ export default {
     ...mapGetters(['dicList']),
   },
   methods: {
+    submitForm(status) {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          if (!this.categoryList.length) {
+            this.$message.error('分类不能为空')
+            return
+          }
+          const form = {
+            voteName: this.form.voteName,
+            voteType: this.form.voteType,
+            startTime: this.form.startTime,
+            endTime: this.form.endTime,
+            ruleContent: this.form.ruleContent,
+            hasReward: this.form.hasReward,
+            rewardContent: this.form.rewardContent,
+            remark: this.form.remark,
+            roleInput: this.categoryList.map((v) => ({ name: v })),
+            configInput: {
+              hasSpecialVote: this.form.hasSpecialVote,
+              voteShowType: this.form.voteShowType,
+              voteUpdateType: this.form.voteUpdateType,
+              showMap: this.form.showMap,
+              showChart: this.form.showChart,
+              voteLevel: this.form.voteLevel,
+              voteQqVip: this.form.voteQqVip,
+              diyBg: this.form.diyBg,
+            },
+            status,
+          }
+          if (this.fileList.length) {
+            form.configInput.file = {
+              recordId: "",
+              fileExt: this.fileList[0].fileExt,
+              fileFullPath: this.fileList[0].fileFullPath,
+              fileName: this.fileList[0].fileName,
+              filePath: this.fileList[0].filePath,
+            }
+          }
+          this.$mutate(createVote, {
+            input: form,
+          }).then((res) => {
+            if (!res.errors) {
+              this.$message.success('创建成功')
+              this.goBack()
+            } else {
+              this.$message.error('创建失败')
+            }
+          })
+        }
+      })
+    },
+    createVote(){
+
+    },
+    updateForm() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          if (!this.categoryList.length) {
+            this.$message.error('分类不能为空')
+            return
+          }
+          const form = {
+            ruleContent: this.form.ruleContent,
+            rewardContent: this.form.rewardContent,
+            remark: this.form.remark,
+            roleInput: this.categoryList.map((v) => ({ name: v })),
+            configInput: {
+              voteConfigId:this.form.voteConfigId,
+              voteShowType: this.form.voteShowType,
+              voteUpdateType: this.form.voteUpdateType,
+              showMap: this.form.showMap,
+              showChart: this.form.showChart,
+              voteLevel: this.form.voteLevel,
+              voteQqVip: this.form.voteQqVip,
+              diyBg: this.form.diyBg,
+            },
+          }
+          if (this.fileList.length) {
+            form.configInput.file = {
+              recordId: this.form.voteConfigId,
+              fileExt: this.fileList[0].fileExt,
+              fileFullPath: this.fileList[0].fileFullPath,
+              fileName: this.fileList[0].fileName,
+              filePath: this.fileList[0].filePath,
+            }
+          }
+          this.$mutate(updateVote, {
+            input: form,
+            id: this.inData.id,
+          }).then((res) => {
+            if (!res.errors) {
+              this.$message.success('更新成功')
+              this.goBack()
+            } else {
+              this.$message.error('更新失败')
+            }
+          })
+        }
+      })
+    },
     handleClose(tag) {
       this.categoryList.splice(this.categoryList.indexOf(tag), 1)
     },
@@ -414,6 +554,51 @@ export default {
       this.inputVisible = true
       this.$nextTick((_) => {
         this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+
+    getDetail(row) {
+      this.$query(readOne, { id: row.id }).then((res) => {
+        if (!res.data.errors) {
+          const data = res.data.data
+          this.form = {
+            voteName: data.voteName,
+            voteType: data.voteType,
+            ruleContent: data.ruleContent,
+            hasReward: data.hasReward,
+            rewardContent: data.rewardContent,
+            startTime: data.startTime,
+            endTime: data.endTime,
+            hasSpecialVote: data.voteConfig.hasSpecialVote,
+            voteShowType: data.voteConfig.voteShowType,
+            voteUpdateType: data.voteConfig.voteUpdateType,
+            showMap: data.voteConfig.showMap,
+            showChart: data.voteConfig.showChart,
+            voteQqVip: data.voteConfig.voteQqVip,
+            voteLevel: data.voteConfig.voteLevel,
+            diyBg: data.voteConfig.diyBg,
+            remark: data.remark,
+            voteConfigId:data.voteConfig.id
+          }
+          if (data.voteConfig.file) {
+            data.voteConfig.file &&
+              (this.fileList = [
+                {
+                  recordId: data.voteConfig.file.recordId,
+                  fileName: data.voteConfig.file.fileName,
+                  filePath: data.voteConfig.file.filePath,
+                  fileExt: data.voteConfig.file.fileExt,
+                  fileFullPath: data.voteConfig.file.fileFullPath,
+                },
+              ])
+            this.imageUrl = data.voteConfig.file
+              ? this.imgUrl + data.voteConfig.file.fileFullPath
+              : ''
+          }
+          this.categoryList = data.voteRoleType.map((v) => v.name)
+        } else {
+          this.$message.error('加载失败')
+        }
       })
     },
 

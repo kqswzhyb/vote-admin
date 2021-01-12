@@ -2,7 +2,7 @@
   <div>
     <el-form :inline="true" :model="searchForm" class="search-form">
       <el-row :gutter="20">
-        <el-col :span="21">
+        <el-col :span="20">
           <el-form-item label="比赛名称">
             <el-input
               v-model="searchForm.voteName"
@@ -26,7 +26,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="3" class="text-right">
+        <el-col :span="4" class="text-right">
           <el-form-item>
             <el-button type="primary" size="small" @click="searchConfirm"
               >搜索</el-button
@@ -43,7 +43,7 @@
         >创建比赛</el-button
       >
     </div>
-    <el-table :data="tableData" stripe border v-loading="loading">
+    <el-table :data="tableData" ref="table" stripe border v-loading="loading">
       <el-table-column prop="index" label="序号" align="center" width="50">
         <template slot-scope="scope">
           {{ count + scope.$index + 1 }}
@@ -65,7 +65,7 @@
       </el-table-column>
       <el-table-column prop="endTime" label="结束时间" align="center">
       </el-table-column>
-      <el-table-column prop="createdBy" label="发起人" align="center">
+      <el-table-column prop="createBy" label="发起人" align="center">
       </el-table-column>
       <el-table-column prop="status" label="状态" align="center">
         <template slot-scope="{ row }">
@@ -106,7 +106,12 @@
       top="0"
       :before-close="handleClose"
     >
-      <VoteConfigDialog @close="($event) => (dialogVisible = false)" />
+      <VoteConfigDialog
+        ref="voteConfig"
+        :mode="mode"
+        :inData="inData"
+        @close="closeDialog"
+      />
     </el-dialog>
   </div>
 </template>
@@ -126,11 +131,13 @@ export default {
       loading: false,
       searchForm: {
         voteName: '',
-        status: '0',
+        status: '',
       },
       url: '',
       dialogVisible: false,
       optionalChaining,
+      mode: '',
+      inData: {},
     }
   },
   beforeMount() {
@@ -141,12 +148,23 @@ export default {
     ...mapGetters(['dicList']),
   },
   methods: {
+    closeDialog() {
+      this.dialogVisible = false
+      this.searchConfirm()
+    },
     handleClose() {},
     createVote() {
+      this.mode = 'add'
+      this.inData = {}
       this.dialogVisible = true
     },
     editVote(row) {
-      console.log(row)
+      this.mode = row.status === '0' ? 'edit' : 'change'
+      this.inData = row
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.voteConfig.getDetail(row)
+      })
     },
     searchConfirm() {
       this.page.current = 1
@@ -155,7 +173,7 @@ export default {
     emptyConfirm() {
       this.searchForm = {
         voteName: '',
-        status: '0',
+        status: '',
       }
       this.searchConfirm()
     },
@@ -196,8 +214,3 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
-.el-form--inline::v-deep .el-form-item__content {
-  width: calc(100% - 100px);
-}
-</style>
