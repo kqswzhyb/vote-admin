@@ -12,7 +12,7 @@
         size="mini"
         type="primary"
         v-if="mode === 'change'"
-        @click="createVote"
+        @click="draftCreateVote"
         >创建比赛</el-button
       >
       <el-button
@@ -81,6 +81,29 @@
                 >
                   <el-option
                     v-for="item in dicList['vote_type']"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.value"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6" v-if="form.voteType==='1'">
+              <el-form-item
+                label="评选类型"
+                prop="specialType"
+                style="width: 100%"
+              >
+                <el-select
+                  v-model="form.specialType"
+                  :disabled="mode === 'edit'"
+                  size="small"
+                  style="width: 100%"
+                  placeholder="请选择"
+                  clearable
+                >
+                  <el-option
+                    v-for="item in dicList['special_type']"
                     :key="item.id"
                     :label="item.name"
                     :value="item.value"
@@ -361,7 +384,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { createVote, readOne, updateVote } from '@/graphql/vote/vote'
+import {
+  createVote,
+  readOne,
+  updateVote,
+  draftUpdateVote,
+} from '@/graphql/vote/vote'
 export default {
   name: 'VoteConfigDialog',
   props: {
@@ -381,6 +409,7 @@ export default {
       form: {
         voteName: '',
         voteType: '',
+        specialType:"",
         ruleContent: '',
         hasReward: '',
         rewardContent: '',
@@ -456,6 +485,7 @@ export default {
           const form = {
             voteName: this.form.voteName,
             voteType: this.form.voteType,
+            specialType: this.form.specialType,
             startTime: this.form.startTime,
             endTime: this.form.endTime,
             ruleContent: this.form.ruleContent,
@@ -477,7 +507,7 @@ export default {
           }
           if (this.fileList.length) {
             form.configInput.file = {
-              recordId: "",
+              recordId: '',
               fileExt: this.fileList[0].fileExt,
               fileFullPath: this.fileList[0].fileFullPath,
               fileName: this.fileList[0].fileName,
@@ -497,8 +527,57 @@ export default {
         }
       })
     },
-    createVote(){
-
+    draftCreateVote() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          if (!this.categoryList.length) {
+            this.$message.error('分类不能为空')
+            return
+          }
+          const form = {
+            voteName: this.form.voteName,
+            voteType: this.form.voteType,
+            specialType:this.form.specialType,
+            startTime: this.form.startTime,
+            endTime: this.form.endTime,
+            ruleContent: this.form.ruleContent,
+            rewardContent: this.form.rewardContent,
+            remark: this.form.remark,
+            roleInput: this.categoryList.map((v) => ({ name: v })),
+            configInput: {
+              voteConfigId: this.form.voteConfigId,
+              voteShowType: this.form.voteShowType,
+              voteUpdateType: this.form.voteUpdateType,
+              showMap: this.form.showMap,
+              showChart: this.form.showChart,
+              voteLevel: this.form.voteLevel,
+              voteQqVip: this.form.voteQqVip,
+              diyBg: this.form.diyBg,
+            },
+            status: '0',
+          }
+          if (this.fileList.length) {
+            form.configInput.file = {
+              recordId: this.form.voteConfigId,
+              fileExt: this.fileList[0].fileExt,
+              fileFullPath: this.fileList[0].fileFullPath,
+              fileName: this.fileList[0].fileName,
+              filePath: this.fileList[0].filePath,
+            }
+          }
+          this.$mutate(draftUpdateVote, {
+            input: form,
+            id: this.inData.id,
+          }).then((res) => {
+            if (!res.errors) {
+              this.$message.success('创建成功')
+              this.goBack()
+            } else {
+              this.$message.error('创建失败')
+            }
+          })
+        }
+      })
     },
     updateForm() {
       this.$refs.form.validate((valid) => {
@@ -507,13 +586,24 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
+          let extra =
+            this.mode === 'edit'
+              ? {}
+              : {
+                  voteName: this.form.voteName,
+                  voteType: this.form.voteType,
+                  startTime: this.form.startTime,
+                  endTime: this.form.endTime,
+                  specialType:this.form.specialType
+                }
           const form = {
+            ...extra,
             ruleContent: this.form.ruleContent,
             rewardContent: this.form.rewardContent,
             remark: this.form.remark,
             roleInput: this.categoryList.map((v) => ({ name: v })),
             configInput: {
-              voteConfigId:this.form.voteConfigId,
+              voteConfigId: this.form.voteConfigId,
               voteShowType: this.form.voteShowType,
               voteUpdateType: this.form.voteUpdateType,
               showMap: this.form.showMap,
@@ -532,7 +622,7 @@ export default {
               filePath: this.fileList[0].filePath,
             }
           }
-          this.$mutate(updateVote, {
+          this.$mutate(this.mode === 'edit' ? updateVote : draftUpdateVote, {
             input: form,
             id: this.inData.id,
           }).then((res) => {
@@ -564,6 +654,7 @@ export default {
           this.form = {
             voteName: data.voteName,
             voteType: data.voteType,
+            specialType: data.specialType,
             ruleContent: data.ruleContent,
             hasReward: data.hasReward,
             rewardContent: data.rewardContent,
@@ -578,7 +669,7 @@ export default {
             voteLevel: data.voteConfig.voteLevel,
             diyBg: data.voteConfig.diyBg,
             remark: data.remark,
-            voteConfigId:data.voteConfig.id
+            voteConfigId: data.voteConfig.id,
           }
           if (data.voteConfig.file) {
             data.voteConfig.file &&

@@ -6,6 +6,7 @@ export const readOne = gql`
       id
       voteName
       voteType
+      specialType
       startTime
       endTime
       ruleContent
@@ -46,23 +47,14 @@ export const readAll = gql`
       id
       voteName
       voteType
+      specialType
       startTime
       endTime
-      ruleContent
-      hasReward
-      rewardContent
       createBy
       status
-      voteConfig {
+      voteRoleType {
         id
-        showMap
-        showChart
-        voteShowType
-        voteUpdateType
-        diyBg
-        hasSpecialVote
-        voteQqVip
-        voteLevel
+        name
       }
     }
   }
@@ -91,6 +83,19 @@ export const createVote = gql`
 export const updateVote = gql`
   mutation updateVote($input: UpdateVoteInput!, $id: ID!) {
     updateVote(input: $input, id: $id) {
+      id
+      voteName
+      voteType
+      updatedAt
+      createdAt
+      remark
+    }
+  }
+`
+
+export const draftUpdateVote = gql`
+  mutation draftUpdateVote($input: DraftUpdateVoteInput!, $id: ID!) {
+    draftUpdateVote(input: $input, id: $id) {
       id
       voteName
       voteType

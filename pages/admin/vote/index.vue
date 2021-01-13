@@ -79,9 +79,29 @@
       </el-table-column>
       <el-table-column fixed="right" label="操作" align="center" width="60">
         <template slot-scope="{ row }">
-          <el-button type="text" size="small" @click="editVote(row)"
-            >编辑</el-button
-          >
+          <el-dropdown>
+            <span class="el-dropdown-link"> 操作 </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item
+                ><el-button
+                  type="text"
+                  v-if="row.status === '0' || row.status === '3'"
+                  size="small"
+                  @click="editVote(row)"
+                  >编辑比赛</el-button
+                ></el-dropdown-item
+              >
+              <el-dropdown-item
+                ><el-button
+                  type="text"
+                  v-if="row.status === '0' || row.status === '3'"
+                  size="small"
+                  @click="editRole(row)"
+                  >编辑角色</el-button
+                ></el-dropdown-item
+              >
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -98,19 +118,32 @@
     </el-pagination>
 
     <el-dialog
-      title="创建比赛"
+      :title="title"
       :visible.sync="dialogVisible"
       class="leftDialog"
       append-to-body
       width="calc( 100% - 200px)"
       top="0"
-      :before-close="handleClose"
     >
       <VoteConfigDialog
         ref="voteConfig"
         :mode="mode"
         :inData="inData"
         @close="closeDialog"
+      />
+    </el-dialog>
+    <el-dialog
+      title="编辑角色"
+      :visible.sync="roleDialogVisible"
+      class="leftDialog"
+      append-to-body
+      width="calc( 100% - 200px)"
+      top="0"
+    >
+      <VoteRoleDialog
+        ref="voteRole"
+        :inData="inData"
+        @close="closeRoleDialog"
       />
     </el-dialog>
   </div>
@@ -135,9 +168,11 @@ export default {
       },
       url: '',
       dialogVisible: false,
+      roleDialogVisible:false,
       optionalChaining,
       mode: '',
       inData: {},
+      title: '',
     }
   },
   beforeMount() {
@@ -148,17 +183,28 @@ export default {
     ...mapGetters(['dicList']),
   },
   methods: {
+    closeRoleDialog(){
+      this.roleDialogVisible = false
+      this.searchConfirm()
+    },
     closeDialog() {
       this.dialogVisible = false
       this.searchConfirm()
     },
-    handleClose() {},
+    editRole(row) {
+      this.roleDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.voteRole.getDetail(row)
+      })
+    },
     createVote() {
+      this.title = '创建比赛'
       this.mode = 'add'
       this.inData = {}
       this.dialogVisible = true
     },
     editVote(row) {
+      this.title = '编辑比赛'
       this.mode = row.status === '0' ? 'edit' : 'change'
       this.inData = row
       this.dialogVisible = true
