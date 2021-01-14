@@ -60,7 +60,7 @@
       </el-row>
     </el-form>
     <div class="my10">
-      <el-button type="primary" size="small" @click="creatRole"
+      <el-button type="primary" v-if="formEdit" size="small" @click="creatRole"
         >创建角色</el-button
       >
     </div>
@@ -88,14 +88,27 @@
       </el-table-column>
       <el-table-column prop="createBy" label="创建人" align="center">
       </el-table-column>
-      <el-table-column fixed="right" label="操作" align="center" width="60">
+      <el-table-column prop="remark" label="备注" align="center">
+      </el-table-column>
+      <el-table-column
+        fixed="right"
+        label="操作"
+        v-if="formEdit"
+        align="center"
+        width="60"
+      >
         <template slot-scope="{ row }">
           <el-dropdown>
             <span class="el-dropdown-link"> 操作 </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
                 ><el-button type="text" size="small" @click="editRole(row)"
-                  >编辑角色</el-button
+                  >编辑</el-button
+                ></el-dropdown-item
+              >
+              <el-dropdown-item
+                ><el-button type="text" size="small" @click="deleteRole(row)"
+                  >删除</el-button
                 ></el-dropdown-item
               >
             </el-dropdown-menu>
@@ -188,6 +201,7 @@ import {
   readCount,
   createVoteRole,
   updateVoteRole,
+  deleteVoteRole,
 } from '@/graphql/vote/voteRole.js'
 import { mapGetters } from 'vuex'
 import mixin from '@/utils/mixin'
@@ -227,6 +241,7 @@ export default {
         ],
       },
       total: '',
+      formEdit: false,
     }
   },
   beforeMount() {
@@ -247,6 +262,7 @@ export default {
       this.imageUrl = ''
       this.currentId = ''
       this.total = ''
+      this.searchConfirm()
     },
   },
   methods: {
@@ -283,10 +299,29 @@ export default {
         this.$refs.voteRole.getDetail(row)
       })
     },
-    getDetail(row) {
+    getDetail(row, mode) {
+      this.formEdit = mode
       this.current = row
       this.activeName = row.voteRoleType[0].id
       this.searchConfirm()
+    },
+    deleteRole(row) {
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.$mutate(deleteVoteRole, {
+          id: row.id,
+        }).then((res) => {
+          if (!res.errors) {
+            this.getList()
+            this.$message.success('删除成功')
+          } else {
+            this.$message.error('删除失败')
+          }
+        })
+      })
     },
     creatRole() {
       if (

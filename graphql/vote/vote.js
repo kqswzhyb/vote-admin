@@ -105,3 +105,12 @@ export const draftUpdateVote = gql`
     }
   }
 `
+
+export const readyVote = gql`
+  mutation readyVote($id: ID!) {
+    readyVote(id: $id) {
+      code
+      message
+    }
+  }
+`

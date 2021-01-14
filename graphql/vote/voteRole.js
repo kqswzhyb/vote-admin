@@ -92,7 +92,7 @@ export const createVoteRole = gql`
   }
 `
 export const updateVoteRole = gql`
-  mutation updateVote($input: UpdateVoteRoleInput!, $id: ID!) {
+  mutation updateVoteRole($input: UpdateVoteRoleInput!, $id: ID!) {
     updateVoteRole(input: $input, id: $id) {
       id
       roleName
@@ -108,6 +108,15 @@ export const updateVoteRole = gql`
         fileFullPath
       }
       remark
+    }
+  }
+`
+
+export const deleteVoteRole = gql`
+  mutation deleteVoteRole($id: ID!) {
+    deleteVoteRole(id: $id) {
+      code
+      message
     }
   }
 `

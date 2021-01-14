@@ -4,35 +4,35 @@
       <el-button
         size="mini"
         type="primary"
-        v-if="mode === 'add'"
+        v-if="mode === 'add' && formEdit"
         @click="submitForm('0')"
         >创建比赛</el-button
       >
       <el-button
         size="mini"
         type="primary"
-        v-if="mode === 'change'"
+        v-if="mode === 'change' && formEdit"
         @click="draftCreateVote"
         >创建比赛</el-button
       >
       <el-button
         size="mini"
         type="primary"
-        v-if="mode === 'edit'"
+        v-if="mode === 'edit' && formEdit"
         @click="updateForm"
         >更新比赛</el-button
       >
       <el-button
         size="mini"
         type="primary"
-        v-if="mode === 'add'"
+        v-if="mode === 'add' && formEdit"
         @click="submitForm('3')"
         >保存草稿</el-button
       >
       <el-button
         size="mini"
         type="primary"
-        v-if="mode === 'change'"
+        v-if="mode === 'change' && formEdit"
         @click="updateForm"
         >保存草稿</el-button
       >
@@ -57,7 +57,7 @@
               >
                 <el-input
                   v-model="form.voteName"
-                  :disabled="mode === 'edit'"
+                  :disabled="mode === 'edit' || !formEdit"
                   size="small"
                   style="width: 100%"
                   placeholder="比赛名称"
@@ -73,7 +73,7 @@
               >
                 <el-select
                   v-model="form.voteType"
-                  :disabled="mode === 'edit'"
+                  :disabled="mode === 'edit' || !formEdit"
                   size="small"
                   style="width: 100%"
                   placeholder="请选择"
@@ -88,7 +88,7 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="6" v-if="form.voteType==='1'">
+            <el-col :span="6" v-if="form.voteType === '1'">
               <el-form-item
                 label="评选类型"
                 prop="specialType"
@@ -96,7 +96,8 @@
               >
                 <el-select
                   v-model="form.specialType"
-                  :disabled="mode === 'edit'"
+                  @change="changeEndTime"
+                  :disabled="mode === 'edit' || !formEdit"
                   size="small"
                   style="width: 100%"
                   placeholder="请选择"
@@ -122,6 +123,7 @@
                   autosize
                   style="width: 100%"
                   placeholder="请输入内容"
+                  :disabled="!formEdit"
                   v-model="form.ruleContent"
                   maxlength="500"
                   show-word-limit
@@ -137,7 +139,7 @@
               >
                 <el-radio-group
                   v-model="form.hasReward"
-                  :disabled="mode === 'edit'"
+                  :disabled="mode === 'edit' || !formEdit"
                 >
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
@@ -156,13 +158,20 @@
                   style="width: 100%"
                   placeholder="请输入内容"
                   v-model="form.rewardContent"
+                  :disabled="!formEdit"
                   maxlength="500"
                   show-word-limit
                 >
                 </el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <el-col
+              :span="6"
+              v-show="
+                form.voteType === '0' ||
+                (form.voteType === '1' && form.specialType)
+              "
+            >
               <el-form-item
                 label="开始时间"
                 prop="startTime"
@@ -170,7 +179,8 @@
               >
                 <el-date-picker
                   v-model="form.startTime"
-                  :disabled="mode === 'edit'"
+                  :disabled="mode === 'edit' || !formEdit"
+                  @change="changeEndTime"
                   size="small"
                   type="datetime"
                   style="width: 100%"
@@ -179,11 +189,19 @@
                 </el-date-picker>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <el-col
+              :span="6"
+              v-show="
+                form.voteType === '0' ||
+                (form.voteType === '1' && form.specialType)
+              "
+            >
               <el-form-item label="结束时间" prop="endTime" style="width: 100%">
                 <el-date-picker
                   v-model="form.endTime"
-                  :disabled="mode === 'edit'"
+                  :disabled="
+                    mode === 'edit' || !formEdit || form.voteType === '1'
+                  "
                   size="small"
                   type="datetime"
                   style="width: 100%"
@@ -200,7 +218,7 @@
               >
                 <el-radio-group
                   v-model="form.hasSpecialVote"
-                  :disabled="mode === 'edit'"
+                  :disabled="mode === 'edit' || !formEdit"
                 >
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
@@ -217,6 +235,7 @@
                   v-model="form.voteShowType"
                   size="small"
                   style="width: 100%"
+                  :disabled="!formEdit"
                   placeholder="请选择"
                   clearable
                 >
@@ -239,6 +258,7 @@
                   v-model="form.voteUpdateType"
                   size="small"
                   style="width: 100%"
+                  :disabled="!formEdit"
                   placeholder="请选择"
                   clearable
                 >
@@ -257,7 +277,7 @@
                 prop="showMap"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.showMap">
+                <el-radio-group v-model="form.showMap" :disabled="!formEdit">
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -269,7 +289,7 @@
                 prop="showChart"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.showChart">
+                <el-radio-group v-model="form.showChart" :disabled="!formEdit">
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -281,7 +301,7 @@
                 prop="voteQqVip"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.voteQqVip">
+                <el-radio-group v-model="form.voteQqVip" :disabled="!formEdit">
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -295,6 +315,7 @@
               >
                 <el-input-number
                   v-model="form.voteLevel"
+                  :disabled="!formEdit"
                   :controls="false"
                   :min="0"
                   :max="300"
@@ -307,7 +328,7 @@
                 prop="diyBg"
                 style="width: 100%"
               >
-                <el-radio-group v-model="form.diyBg">
+                <el-radio-group v-model="form.diyBg" :disabled="!formEdit">
                   <el-radio label="0">是</el-radio>
                   <el-radio label="1">否</el-radio>
                 </el-radio-group>
@@ -318,29 +339,33 @@
                 <el-tag
                   :key="tag"
                   v-for="tag in categoryList"
-                  closable
+                  :closable="formEdit"
                   :disable-transitions="false"
                   @close="handleClose(tag)"
                 >
                   {{ tag }}
                 </el-tag>
-                <el-input
-                  class="input-new-tag"
-                  v-if="inputVisible"
-                  v-model="inputValue"
-                  ref="saveTagInput"
-                  size="small"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
-                >
-                </el-input>
-                <el-button
-                  v-else
-                  class="button-new-tag"
-                  size="small"
-                  @click="showInput"
-                  >新增</el-button
-                >
+                <template v-if="formEdit">
+                  <el-input
+                    class="input-new-tag"
+                    v-if="inputVisible"
+                    v-model="inputValue"
+                    :disabled="!formEdit"
+                    ref="saveTagInput"
+                    size="small"
+                    @keyup.enter.native="handleInputConfirm"
+                    @blur="handleInputConfirm"
+                  >
+                  </el-input>
+                  <el-button
+                    v-else
+                    class="button-new-tag"
+                    :disabled="!formEdit"
+                    size="small"
+                    @click="showInput"
+                    >新增</el-button
+                  >
+                </template>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -349,6 +374,7 @@
                   type="textarea"
                   autosize
                   v-model="form.remark"
+                  :disabled="!formEdit"
                   placeholder="请输入内容"
                   maxlength="200"
                   show-word-limit
@@ -361,6 +387,7 @@
           <el-upload
             class="avatar-uploader"
             :action="url + '/file/simpleUpload'"
+            :disabled="!formEdit"
             :headers="{
               Authorization: `Bearer ${$cookies.get('token')}`,
             }"
@@ -406,10 +433,11 @@ export default {
     return {
       url: '',
       imageUrl: '',
+      formEdit: false,
       form: {
         voteName: '',
         voteType: '',
-        specialType:"",
+        specialType: '',
         ruleContent: '',
         hasReward: '',
         rewardContent: '',
@@ -475,11 +503,25 @@ export default {
     ...mapGetters(['dicList']),
   },
   methods: {
+    changeEndTime(val) {
+      //   128 64 32 16 8 4 2
+      //   16  16  8  4 2 1 1
+      if (this.form.voteType === '1'&&this.form.startTime) {
+        this.form.endTime = this.$moment(this.form.startTime).add(
+          this.form.specialType === '128' ? 48 : 32,
+          'd'
+        )
+      }
+    },
     submitForm(status) {
       this.$refs.form.validate((valid) => {
         if (valid) {
           if (!this.categoryList.length) {
             this.$message.error('分类不能为空')
+            return
+          }
+          if (this.form.voteType==='0' && this.categoryList.length>1) {
+            this.$message.error('普通类型下分类不能大于1个')
             return
           }
           const form = {
@@ -534,10 +576,14 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
+          if (this.form.voteType==='0' && this.categoryList.length>1) {
+            this.$message.error('普通类型下分类不能大于1个')
+            return
+          }
           const form = {
             voteName: this.form.voteName,
             voteType: this.form.voteType,
-            specialType:this.form.specialType,
+            specialType: this.form.specialType,
             startTime: this.form.startTime,
             endTime: this.form.endTime,
             ruleContent: this.form.ruleContent,
@@ -586,6 +632,10 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
+          if (this.form.voteType==='0' && this.categoryList.length>1) {
+            this.$message.error('普通类型下分类不能大于1个')
+            return
+          }
           let extra =
             this.mode === 'edit'
               ? {}
@@ -594,7 +644,7 @@ export default {
                   voteType: this.form.voteType,
                   startTime: this.form.startTime,
                   endTime: this.form.endTime,
-                  specialType:this.form.specialType
+                  specialType: this.form.specialType,
                 }
           const form = {
             ...extra,
@@ -647,7 +697,8 @@ export default {
       })
     },
 
-    getDetail(row) {
+    getDetail(row, mode = true) {
+      this.formEdit = mode
       this.$query(readOne, { id: row.id }).then((res) => {
         if (!res.data.errors) {
           const data = res.data.data

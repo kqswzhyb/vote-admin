@@ -83,6 +83,16 @@
             <span class="el-dropdown-link"> 操作 </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item
+                ><el-button type="text" size="small" @click="viewVote(row)"
+                  >查看比赛</el-button
+                ></el-dropdown-item
+              >
+              <el-dropdown-item
+                ><el-button type="text" size="small" @click="viewRole(row)"
+                  >查看角色</el-button
+                ></el-dropdown-item
+              >
+              <el-dropdown-item
                 ><el-button
                   type="text"
                   v-if="row.status === '0' || row.status === '3'"
@@ -98,6 +108,15 @@
                   size="small"
                   @click="editRole(row)"
                   >编辑角色</el-button
+                ></el-dropdown-item
+              >
+              <el-dropdown-item
+                ><el-button
+                  type="text"
+                  v-if="row.status === '0'"
+                  size="small"
+                  @click="voteReady(row)"
+                  >准备就绪</el-button
                 ></el-dropdown-item
               >
             </el-dropdown-menu>
@@ -133,7 +152,7 @@
       />
     </el-dialog>
     <el-dialog
-      title="编辑角色"
+      :title="roleTitle"
       :visible.sync="roleDialogVisible"
       class="leftDialog"
       append-to-body
@@ -150,7 +169,7 @@
 </template>
 
 <script>
-import { readAll, readCount } from '@/graphql/vote/vote.js'
+import { readAll, readCount, readyVote } from '@/graphql/vote/vote.js'
 import { mapGetters } from 'vuex'
 import mixin from '@/utils/mixin'
 import { optionalChaining } from '@/utils/util'
@@ -168,11 +187,12 @@ export default {
       },
       url: '',
       dialogVisible: false,
-      roleDialogVisible:false,
+      roleDialogVisible: false,
       optionalChaining,
       mode: '',
       inData: {},
       title: '',
+      roleTitle: '',
     }
   },
   beforeMount() {
@@ -183,7 +203,27 @@ export default {
     ...mapGetters(['dicList']),
   },
   methods: {
-    closeRoleDialog(){
+    voteReady(row) {
+      this.$confirm('此操作将更新状态就绪，之后无法再编辑, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.$mutate(readyVote, {
+          id: row.id,
+        }).then((res) => {
+          if (!res.errors) {
+            this.getList()
+            this.$message[res.data.readyVote.code === '0' ? 'success' : 'error'](
+              res.data.readyVote.message
+            )
+          } else {
+            this.$message.error('请求失败')
+          }
+        })
+      })
+    },
+    closeRoleDialog() {
       this.roleDialogVisible = false
       this.searchConfirm()
     },
@@ -192,9 +232,17 @@ export default {
       this.searchConfirm()
     },
     editRole(row) {
+      this.roleTitle = '编辑角色'
       this.roleDialogVisible = true
       this.$nextTick(() => {
-        this.$refs.voteRole.getDetail(row)
+        this.$refs.voteRole.getDetail(row, true)
+      })
+    },
+    viewRole(row) {
+      this.roleTitle = '查看角色'
+      this.roleDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.voteRole.getDetail(row, false)
       })
     },
     createVote() {
@@ -202,6 +250,18 @@ export default {
       this.mode = 'add'
       this.inData = {}
       this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.voteConfig.formEdit=true
+      })
+    },
+    viewVote(row) {
+      this.title = '查看比赛'
+      this.mode = 'view'
+      this.inData = row
+      this.dialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.voteConfig.getDetail(row, false)
+      })
     },
     editVote(row) {
       this.title = '编辑比赛'
@@ -209,7 +269,7 @@ export default {
       this.inData = row
       this.dialogVisible = true
       this.$nextTick(() => {
-        this.$refs.voteConfig.getDetail(row)
+        this.$refs.voteConfig.getDetail(row, true)
       })
     },
     searchConfirm() {

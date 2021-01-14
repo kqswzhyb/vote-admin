@@ -23,6 +23,7 @@
     "element-ui": "^2.13.2",
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
+    "moment": "^2.29.1",
     "nuxt": "^2.14.6",
     "vue-apollo": "^3.0.5"
   },
