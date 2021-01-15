@@ -33,17 +33,11 @@ const authMiddleware = new ApolloLink((operation, forward) => {
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
-    graphQLErrors.map(({ message, locations, path }) => {
-      const errorCode = message.slice(0, 4)
+    graphQLErrors.map(({ extensions }) => {
       console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+        `[GraphQL error]: ${(extensions as any).exception.stacktrace.map(v=>v+'\n').toString()}`
       )
-      if (errorCode === '0001') {
-        return
-      }
-      if (/^[0-9]*$/.test(errorCode)) {
-        Message.error('错误')
-      }
+      Message.error('输入内容错误，请重试！')
     })
   }
 
