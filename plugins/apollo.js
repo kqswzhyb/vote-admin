@@ -35,7 +35,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     graphQLErrors.map(({ extensions }) => {
       console.log(
-        `[GraphQL error]: ${(extensions as any).exception.stacktrace.map(v=>v+'\n').toString()}`
+        `[GraphQL error]: ${extensions.exception.stacktrace.map(v=>v+'\n').toString()}`
       )
       Message.error('输入内容错误，请重试！')
     })
