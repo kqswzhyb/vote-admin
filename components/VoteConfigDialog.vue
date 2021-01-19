@@ -505,10 +505,10 @@ export default {
   methods: {
     changeEndTime(val) {
       //   128 64 32 16 8 4 2
-      //   16  16  8  4 2 1 1
+      //   8  8  4  4 2 1 1
       if (this.form.voteType === '1'&&this.form.startTime) {
         this.form.endTime = this.$moment(this.form.startTime).add(
-          this.form.specialType === '128' ? 48 : 32,
+          this.form.specialType === '128' ? 28 : 20,
           'd'
         )
       }
