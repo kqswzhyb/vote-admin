@@ -93,7 +93,6 @@
       <el-table-column
         fixed="right"
         label="操作"
-        v-if="formEdit"
         align="center"
         width="60"
       >
@@ -107,6 +106,7 @@
                 ></el-dropdown-item
               >
               <el-dropdown-item
+               v-if="formEdit"
                 ><el-button type="text" size="small" @click="deleteRole(row)"
                   >删除</el-button
                 ></el-dropdown-item
