@@ -47,6 +47,11 @@
     "sass": "^1.32.0",
     "sass-loader": "^10.1.0"
   },
+  "config": {
+    "nuxt": {
+      "port": "3333"
+    }
+  },
   "repository": {
     "type": "git",
     "url": ""

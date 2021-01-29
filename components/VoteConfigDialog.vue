@@ -334,6 +334,30 @@
                 </el-radio-group>
               </el-form-item>
             </el-col>
+            <el-col :span="6">
+              <el-form-item
+                label="数据分析"
+                prop="dataAnalysis"
+                style="width: 100%"
+              >
+                <el-select
+                  v-model="form.dataAnalysis"
+                  size="small"
+                  style="width: 100%"
+                  :disabled="!formEdit"
+                  placeholder="请选择"
+                  multiple
+                  clearable
+                >
+                  <el-option
+                    v-for="item in dataAnalysisList"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
             <el-col :span="24">
               <el-form-item label="分类" style="width: 100%">
                 <el-tag
@@ -417,6 +441,7 @@ import {
   updateVote,
   draftUpdateVote,
 } from '@/graphql/vote/vote'
+import { readAll } from '@/graphql/data/analysis.js'
 export default {
   name: 'VoteConfigDialog',
   props: {
@@ -452,6 +477,7 @@ export default {
         voteLevel: 0,
         diyBg: '',
         remark: '',
+        dataAnalysis: [],
       },
       rules: {
         voteName: [
@@ -494,19 +520,35 @@ export default {
       categoryList: [],
       inputVisible: false,
       inputValue: '',
+      dataAnalysisList: [],
     }
   },
   beforeMount() {
     this.url = this.$baseURL
+    this.getDataAnalysisList()
   },
   computed: {
     ...mapGetters(['dicList']),
   },
   methods: {
+    getDataAnalysisList() {
+      this.$query(readAll, {
+        page: {
+          limit: 999,
+          offset: 0,
+        },
+      }).then((res) => {
+        if (!res.errors) {
+          this.dataAnalysisList = res.data.data
+        } else {
+          this.$message.error('加载失败')
+        }
+      })
+    },
     changeEndTime(val) {
       //   128 64 32 16 8 4 2
       //   8  8  4  4 2 1 1
-      if (this.form.voteType === '1'&&this.form.startTime) {
+      if (this.form.voteType === '1' && this.form.startTime) {
         this.form.endTime = this.$moment(this.form.startTime).add(
           this.form.specialType === '128' ? 28 : 20,
           'd'
@@ -520,7 +562,7 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
-          if (this.form.voteType==='0' && this.categoryList.length>1) {
+          if (this.form.voteType === '0' && this.categoryList.length > 1) {
             this.$message.error('普通类型下分类不能大于1个')
             return
           }
@@ -544,6 +586,7 @@ export default {
               voteLevel: this.form.voteLevel,
               voteQqVip: this.form.voteQqVip,
               diyBg: this.form.diyBg,
+              dataAnalysis: this.form.dataAnalysis.join(','),
             },
             status,
           }
@@ -576,7 +619,7 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
-          if (this.form.voteType==='0' && this.categoryList.length>1) {
+          if (this.form.voteType === '0' && this.categoryList.length > 1) {
             this.$message.error('普通类型下分类不能大于1个')
             return
           }
@@ -599,6 +642,7 @@ export default {
               voteLevel: this.form.voteLevel,
               voteQqVip: this.form.voteQqVip,
               diyBg: this.form.diyBg,
+              dataAnalysis: this.form.dataAnalysis.join(','),
             },
             status: '0',
           }
@@ -632,7 +676,7 @@ export default {
             this.$message.error('分类不能为空')
             return
           }
-          if (this.form.voteType==='0' && this.categoryList.length>1) {
+          if (this.form.voteType === '0' && this.categoryList.length > 1) {
             this.$message.error('普通类型下分类不能大于1个')
             return
           }
@@ -661,6 +705,7 @@ export default {
               voteLevel: this.form.voteLevel,
               voteQqVip: this.form.voteQqVip,
               diyBg: this.form.diyBg,
+              dataAnalysis: this.form.dataAnalysis.join(','),
             },
           }
           if (this.fileList.length) {
@@ -721,6 +766,7 @@ export default {
             diyBg: data.voteConfig.diyBg,
             remark: data.remark,
             voteConfigId: data.voteConfig.id,
+            dataAnalysis: (data.voteConfig.dataAnalysis || '').split(','),
           }
           if (data.voteConfig.file) {
             data.voteConfig.file &&

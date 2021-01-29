@@ -24,6 +24,7 @@ export const readOne = gql`
         hasSpecialVote
         voteQqVip
         voteLevel
+        dataAnalysis
         file {
           id
           recordId
