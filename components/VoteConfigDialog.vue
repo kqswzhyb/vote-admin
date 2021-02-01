@@ -353,7 +353,7 @@
                     v-for="item in dataAnalysisList"
                     :key="item.id"
                     :label="item.name"
-                    :value="item.id"
+                    :value="item.value"
                   ></el-option>
                 </el-select>
               </el-form-item>
